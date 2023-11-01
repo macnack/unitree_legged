@@ -3,9 +3,9 @@
 <package format="3">
   <name>a1_description</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="maciej.p.krupka@student.put.poznan.pl">mackop</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Robot description for unitree a1</description>
+  <maintainer email="maciej.p.krupka@student.put.poznan.pl">Maciej Krupka</maintainer>
+  <license>BSD 3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   
