@@ -35,13 +35,9 @@ install(
         DESTINATION lib
         )
         
-add_executable(talker src/publisher_member_function.cpp)
-ament_target_dependencies(talker rclcpp unitree_a1_legged_msgs)
-
 add_executable(ros2_udp src/ros2_udp.cpp)
 target_link_libraries(ros2_udp ${EXTRA_LIBS})
-ament_target_dependencies(ros2_udp rclcpp unitree_a1_legged_msgs)
-
+ament_target_dependencies(ros2_udp rclcpp std_msgs unitree_a1_legged_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -57,7 +53,6 @@ endif()
 
 install(TARGETS
   ros2_udp
-  talker
   DESTINATION lib/${PROJECT_NAME}
   )
 
