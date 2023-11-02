@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <robot>
     <!-- ros_control plugin -->
-    <gazebo>
+    <!-- <gazebo>
         <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
             <robotNamespace>/a1_gazebo</robotNamespace>
             <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
         </plugin>
-    </gazebo>
+    </gazebo> -->
 
     <!-- Show the trajectory of trunk center. -->
-    <gazebo>
+    <!-- <gazebo>
         <plugin name="3dplot" filename="libLinkPlot3DPlugin.so">
             <frequency>10</frequency>
             <plot>
@@ -18,7 +18,7 @@
                 <material>Gazebo/Yellow</material>
             </plot>
         </plugin>
-    </gazebo>
+    </gazebo> -->
 
     <!-- Show the trajectory of foot. You can add another trajectory about another foot. -->
     <!-- <gazebo>
@@ -34,8 +34,8 @@
 
     <gazebo>
         <plugin filename="libgazebo_ros_force.so" name="gazebo_ros_force">
-            <bodyName>trunk</bodyName>
-            <topicName>/apply_force/trunk</topicName>
+            <link_name>base</link_name>
+            <force_frame>world</force_frame>
         </plugin>
     </gazebo>
 
@@ -47,6 +47,7 @@
             <visualize>true</visualize>
             <topic>__default_topic__</topic>
             <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+                <initial_orientation_as_reference>false</initial_orientation_as_reference>
                 <topicName>trunk_imu</topicName>
                 <bodyName>imu_link</bodyName>
                 <updateRateHZ>1000.0</updateRateHZ>
@@ -60,7 +61,7 @@
     </gazebo>
 
     <!-- Foot contacts. -->
-    <gazebo reference="FR_calf">
+    <!-- <gazebo reference="FR_calf">
         <sensor name="FR_foot_contact" type="contact">
         <update_rate>100</update_rate>
         <plugin name="contactPlugin" filename="libunitreeFootContactPlugin.so"/>
@@ -95,10 +96,10 @@
             <collision>RL_calf_fixed_joint_lump__RL_foot_collision_1</collision>
         </contact>
         </sensor>
-    </gazebo>
+    </gazebo> -->
 
     <!-- Visualization of Foot contacts. -->
-    <gazebo reference="FR_foot">
+    <!-- <gazebo reference="FR_foot">
         <visual>
             <plugin name="drawForcePlugin" filename="libunitreeDrawForcePlugin.so">
                 <topicName>FR_foot_contact</topicName>
@@ -125,7 +126,7 @@
                 <topicName>RL_foot_contact</topicName>
             </plugin>
         </visual>
-    </gazebo>
+    </gazebo> -->
 
     <gazebo reference="base">
         <material>Gazebo/Green</material>
