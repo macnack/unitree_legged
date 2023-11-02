@@ -2,7 +2,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration
+from launch.substitutions import Command, FindExecutable
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -14,8 +15,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "gui",
             default_value="true",
-            description="Start Rviz2 and Joint State Publisher gui automatically \
-        with this launch file.",
+            description="Start Rviz2 and Joint State Publisher gui\
+        automatically with this launch file.",
         )
     )
 
@@ -26,7 +27,8 @@ def generate_launch_description():
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution(
-                [FindPackageShare("gazebo_ros"), "launch", "gazebo.launch.py"])]
+                [FindPackageShare("gazebo_ros"), "launch",
+                 "gazebo.launch.py"])]
         ),
         launch_arguments={"verbose": "false"}.items(),
     )
@@ -68,7 +70,8 @@ def generate_launch_description():
     spawn_entity = Node(
         package="gazebo_ros",
         executable="spawn_entity.py",
-        arguments=["-topic", "/robot_description", "-entity", "a1_gazebo", "-package_to_model"],
+        arguments=["-topic", "robot_description",
+                   "-entity", "a1_gazebo", "-z", "0.6"],
         output="screen",
     )
 
