@@ -10,25 +10,6 @@
 using namespace UNITREE_LEGGED_SDK;
 using namespace std::chrono_literals;
 
-// class UnitreeLeggedNodeA : public rclcpp::Node
-// {
-// public:
-//     // explicit UnitreeLeggedNodeA(const rclcpp::NodeOptions &options);
-//     explicit UnitreeLeggedNodeA();
-
-// private:
-//     UDP udp_;
-//     LowCmd cmd_ = {0};
-//     LowState state_ = {0};
-//     void timer_callback();
-//     void receiveState();
-//     void sendCommand();
-//     void receiveCommand(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg);
-//     rclcpp::TimerBase::SharedPtr timer_;
-//     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-//     rclcpp::Publisher<unitree_a1_legged_msgs::msg::LowState>::SharedPtr pub_low_;
-//     rclcpp::Subscription<unitree_a1_legged_msgs::msg::LowCmd>::SharedPtr sub_low_;
-// };
 
 class UnitreeLeggedNode : public rclcpp::Node
 {
@@ -53,6 +34,9 @@ public:
 private:
     void timer_callback()
     {
+        receiveState();
+        auto msg = stateToRos(state_);
+        pub_low_->publish(msg);
         auto message = std_msgs::msg::String();
         message.data = "Hello, world! ";
         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());

@@ -8,12 +8,12 @@
 #include "unitree_a1_legged_msgs/msg/motor_state.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 
-unitree_a1_legged_msgs::msg::Sphere convert()
-{
-    unitree_a1_legged_msgs::msg::Sphere sphere;
-    sphere.radius = 0.44;
-    return sphere;
-}
+// unitree_a1_legged_msgs::msg::Sphere convert()
+// {
+//     unitree_a1_legged_msgs::msg::Sphere sphere;
+//     sphere.radius = 0.44;
+//     return sphere;
+// }
 
 UNITREE_LEGGED_SDK::HighCmd rosToCmd(const unitree_a1_legged_msgs::msg::HighCmd::SharedPtr msg);
 unitree_a1_legged_msgs::msg::HighState stateToRos(const UNITREE_LEGGED_SDK::HighState &state);
@@ -23,6 +23,7 @@ unitree_a1_legged_msgs::msg::LowState stateToRos(const UNITREE_LEGGED_SDK::LowSt
 
 UNITREE_LEGGED_SDK::MotorCmd rosMotorToCmd(const unitree_a1_legged_msgs::msg::MotorCmd &msg);
 unitree_a1_legged_msgs::msg::MotorState stateToRos(const UNITREE_LEGGED_SDK::MotorState &state);
+
 
 UNITREE_LEGGED_SDK::HighCmd rosToCmd(const unitree_a1_legged_msgs::msg::HighCmd::SharedPtr msg)
 {
