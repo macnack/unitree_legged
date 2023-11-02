@@ -1,3 +1,4 @@
+#include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include "unitree_a1_legged_msgs/msg/sphere.hpp"
 #include "unitree_a1_legged_msgs/msg/high_cmd.hpp"
 #include "unitree_a1_legged_msgs/msg/high_state.hpp"
@@ -5,7 +6,6 @@
 #include "unitree_a1_legged_msgs/msg/low_state.hpp"
 #include "unitree_a1_legged_msgs/msg/motor_cmd.hpp"
 #include "unitree_a1_legged_msgs/msg/motor_state.hpp"
-#include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include "sensor_msgs/msg/imu.hpp"
 
 unitree_a1_legged_msgs::msg::Sphere convert()
@@ -15,16 +15,16 @@ unitree_a1_legged_msgs::msg::Sphere convert()
     return sphere;
 }
 
-UNITREE_LEGGED_SDK::HighCmd rosToCmd(const unitree_a1_legged_msgs::msg::HighCmd::SharedPtr &msg);
+UNITREE_LEGGED_SDK::HighCmd rosToCmd(const unitree_a1_legged_msgs::msg::HighCmd::SharedPtr msg);
 unitree_a1_legged_msgs::msg::HighState stateToRos(UNITREE_LEGGED_SDK::HighState &state);
 
-UNITREE_LEGGED_SDK::LowCmd rosToCmd(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr &msg);
+UNITREE_LEGGED_SDK::LowCmd rosToCmd(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg);
 unitree_a1_legged_msgs::msg::LowState stateToRos(UNITREE_LEGGED_SDK::LowState &state);
 
 UNITREE_LEGGED_SDK::MotorCmd rosMotorToCmd(const unitree_a1_legged_msgs::msg::MotorCmd &msg);
 unitree_a1_legged_msgs::msg::MotorState stateToRos(UNITREE_LEGGED_SDK::MotorState &state);
 
-UNITREE_LEGGED_SDK::HighCmd rosToCmd(unitree_a1_legged_msgs::msg::HighCmd::SharedPtr &msg)
+UNITREE_LEGGED_SDK::HighCmd rosToCmd(const unitree_a1_legged_msgs::msg::HighCmd::SharedPtr msg)
 {
     UNITREE_LEGGED_SDK::HighCmd state;
     state.levelFlag = msg->a1.level_flag;
