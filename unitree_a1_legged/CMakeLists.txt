@@ -43,10 +43,18 @@ add_executable(ros2_udp_copy src/ros2_udp_copy.cpp)
 target_link_libraries(ros2_udp_copy ${EXTRA_LIBS})
 ament_target_dependencies(ros2_udp_copy rclcpp std_msgs unitree_a1_legged_msgs)
 
+add_executable(lowlevel src/lcm_lowlevel.cpp)
+target_link_libraries(lowlevel ${EXTRA_LIBS})
+ament_target_dependencies(lowlevel rclcpp unitree_a1_legged_msgs)
+
+add_executable(example_position src/example_position.cpp)
+ament_target_dependencies(example_position rclcpp unitree_a1_legged_msgs)
 
 install(TARGETS
   ros2_udp
   ros2_udp_copy
+  lowlevel
+  example_position
   DESTINATION lib/${PROJECT_NAME}
   )
 
