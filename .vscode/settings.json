@@ -1,6 +1,0 @@
-{
-    "ros.distro": "humble",
-    "files.associations": {
-        "*.ipp": "cpp"
-    }
-}
