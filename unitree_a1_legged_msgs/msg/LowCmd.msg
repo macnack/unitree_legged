@@ -5,4 +5,4 @@ uint8[40] wireless_remote
 uint32 reserve                 
 uint32 crc
 
-geometry_msgs/Point[4] fff          
+# geometry_msgs/Point[4] fff          

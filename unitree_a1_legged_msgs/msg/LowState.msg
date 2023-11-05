@@ -9,8 +9,8 @@ uint32 reserve
 uint32 crc
 
 
-geometry_msgs/Point[4] ee_force_raw
-geometry_msgs/Point[4] ee_force        
-geometry_msgs/Point position            
-geometry_msgs/Point velocity            
-geometry_msgs/Point velocity_w            
+# geometry_msgs/Point[4] ee_force_raw
+# geometry_msgs/Point[4] ee_force        
+# geometry_msgs/Point position            
+# geometry_msgs/Point velocity            
+# geometry_msgs/Point velocity_w            

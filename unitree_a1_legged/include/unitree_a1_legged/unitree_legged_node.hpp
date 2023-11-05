@@ -1,67 +1,27 @@
-#include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
+
+#include "unitree_a1_legged/unitree_legged_converter.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "unitree_a1_legged/convert.hpp"
 
 using namespace UNITREE_LEGGED_SDK;
-using namespace std::chrono_literals;
 
+namespace unitree_legged
 
-class UnitreeLeggedNode : public rclcpp::Node
 {
-public:
-    UnitreeLeggedNode()
-        : Node("unitree_legged"), udp_(LOWLEVEL)
+    class UnitreeLeggedNode : public rclcpp::Node
     {
-        udp_.InitCmdData(cmd_);
-        this->declare_parameter("period_ms", 100);
-        int period_ms;
-        this->get_parameter("period_ms", period_ms);
-        std::chrono::duration<int64_t, std::milli> period = std::chrono::duration<int64_t, std::milli>(period_ms);
+    public:
+        explicit UnitreeLeggedNode(const rclcpp::NodeOptions & options);
+        ~UnitreeLeggedNode();
 
-        publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
-        pub_low_ = this->create_publisher<unitree_a1_legged_msgs::msg::LowState>("low_state", 10);
-        sub_low_ = this->create_subscription<unitree_a1_legged_msgs::msg::LowCmd>(
-            "topic_new", 10, std::bind(&UnitreeLeggedNode::receiveCommand, this, std::placeholders::_1));
-        timer_ = this->create_wall_timer(
-            period, std::bind(&UnitreeLeggedNode::timer_callback, this));
-    }
-
-private:
-    void timer_callback()
-    {
-        receiveState();
-        auto msg = stateToRos(state_);
-        pub_low_->publish(msg);
-        auto message = std_msgs::msg::String();
-        message.data = "Hello, world! ";
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-        publisher_->publish(message);
-    }
-    UDP udp_;
-    LowCmd cmd_ = {0};
-    LowState state_ = {0};
-    void receiveState()
-    {
-        udp_.Recv();
-        udp_.GetRecv(state_);
-    }
-    void sendCommand()
-    {
-        udp_.SetSend(cmd_);
-        udp_.Send();
-    }
-    void receiveCommand(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg)
-    {
-        cmd_ = rosToCmd(msg);
-        sendCommand();
-    }
-    rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-    rclcpp::Publisher<unitree_a1_legged_msgs::msg::LowState>::SharedPtr pub_low_;
-    rclcpp::Subscription<unitree_a1_legged_msgs::msg::LowCmd>::SharedPtr sub_low_;
-};
+    private:
+        std::thread state_thread_;
+        UnitreeLegged unitree;
+        rclcpp::TimerBase::SharedPtr timer_;
+        rclcpp::Subscription<unitree_a1_legged_msgs::msg::LowCmd>::SharedPtr sub_command_;
+        rclcpp::Publisher<unitree_a1_legged_msgs::msg::LowState>::SharedPtr pub_state_;
+        void updateLoop();
+        void receiveCommandCallback(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg);
+        void updateStateCallback();
+    };
+} // namespace unitree_legged

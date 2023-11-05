@@ -5,10 +5,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 add_compile_options(-Wno-missing-field-initializers)
-# find dependencies
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(unitree_a1_legged_msgs REQUIRED)
 
 message("-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
@@ -17,12 +16,6 @@ if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "x86_64.*")
 else()
   set(ARCH arm64)
 endif()
-set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
-
-if("$ENV{UNITREE_LEGGED_SDK_PATH}" STREQUAL "")
-    message(WARNING "the environment variable UNITREE_LEGGED_SDK_PATH seems to be empty, please execute 'source build_env_vars_export.sh' before compiling.")
-endif()
-message(STATUS "UNITREE_LEGGED_SDK_PATH is $ENV{UNITREE_LEGGED_SDK_PATH}")
 
 include_directories(include
                     ${CMAKE_SOURCE_DIR}/unitree_legged_sdk/include
@@ -32,30 +25,36 @@ install(
         DIRECTORY ${CMAKE_SOURCE_DIR}/unitree_legged_sdk/lib/
         DESTINATION lib
         )
-
 link_directories(${CMAKE_SOURCE_DIR}/unitree_legged_sdk/lib/)
+set(EXTRA_LIBS -pthread libunitree_legged_sdk_${ARCH}.so lcm)
 
-add_executable(ros2_udp src/ros2_udp.cpp)
-target_link_libraries(ros2_udp ${EXTRA_LIBS})
-ament_target_dependencies(ros2_udp rclcpp std_msgs unitree_a1_legged_msgs)
+set(dependencies
+    unitree_a1_legged_msgs
+    rclcpp
+)
 
-add_executable(ros2_udp_copy src/ros2_udp_copy.cpp)
-target_link_libraries(ros2_udp_copy ${EXTRA_LIBS})
-ament_target_dependencies(ros2_udp_copy rclcpp std_msgs unitree_a1_legged_msgs)
-
-add_executable(lowlevel src/lcm_lowlevel.cpp)
-target_link_libraries(lowlevel ${EXTRA_LIBS})
-ament_target_dependencies(lowlevel rclcpp unitree_a1_legged_msgs)
+add_library(unitree_legged
+    src/unitree_legged.cpp
+    src/unitree_legged_converter.cpp
+    src/unitree_legged_node.cpp
+)
+target_link_libraries(unitree_legged ${EXTRA_LIBS})
+ament_target_dependencies(unitree_legged ${dependencies})
 
 add_executable(example_position src/example_position.cpp)
-ament_target_dependencies(example_position rclcpp unitree_a1_legged_msgs)
+ament_target_dependencies(example_position rclcpp ${dependencies})
+
+add_executable(udp src/udp.cpp)
+target_link_libraries(udp unitree_legged)
 
 install(TARGETS
-  ros2_udp
-  ros2_udp_copy
-  lowlevel
+  unitree_legged
+  udp
   example_position
   DESTINATION lib/${PROJECT_NAME}
   )
 
+ament_export_include_directories(include)
+ament_export_libraries(unitree_legged)
+ament_export_dependencies(${dependencies})
 ament_package()
