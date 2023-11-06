@@ -44,6 +44,9 @@ ament_target_dependencies(unitree_legged ${dependencies})
 add_executable(example_position src/example_position.cpp)
 ament_target_dependencies(example_position rclcpp ${dependencies})
 
+add_executable(example_position2 src/example_position_second.cpp)
+ament_target_dependencies(example_position2 rclcpp ${dependencies})
+
 add_executable(udp src/udp.cpp)
 target_link_libraries(udp unitree_legged)
 
@@ -51,9 +54,14 @@ install(TARGETS
   unitree_legged
   udp
   example_position
+  example_position2
   DESTINATION lib/${PROJECT_NAME}
   )
-
+install(DIRECTORY
+  config
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
 ament_export_include_directories(include)
 ament_export_libraries(unitree_legged)
 ament_export_dependencies(${dependencies})

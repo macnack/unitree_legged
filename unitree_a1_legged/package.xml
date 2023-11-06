@@ -8,7 +8,10 @@
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>launch_ros</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>unitree_a1_legged_msgs</depend>
 
 

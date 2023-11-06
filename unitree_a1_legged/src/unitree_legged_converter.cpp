@@ -4,7 +4,6 @@ using namespace UNITREE_LEGGED_SDK;
 
 namespace unitree_legged
 {
-
     sensor_msgs::msg::Imu Converter::stateToMsg(const IMU &state)
     {
         sensor_msgs::msg::Imu msg;
@@ -64,17 +63,16 @@ namespace unitree_legged
         msg.reserve[1] = state.reserve[1];
         return msg;
     }
-    LowCmd Converter::msgToCmd(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg)
+    void Converter::msgToCmd(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg, LowCmd &cmd)
     {
-        LowCmd cmd;
         cmd.levelFlag = msg->a1.level_flag;
         cmd.commVersion = msg->a1.comm_version;
         cmd.robotID = msg->a1.robot_id;
         cmd.SN = msg->a1.sn;
         cmd.bandWidth = msg->a1.band_width;
-        for (int i = 0; i < 20; i++)
+        for (const auto &[key, value] : Converter::jointIndexMap)
         {
-            cmd.motorCmd[i] = Converter::msgToCmd(msg->motor_cmd[i]);
+            cmd.motorCmd[value] = Converter::msgToCmd(msg->motor_cmd[value]);
         }
         for (int i = 0; i < 4; i++)
         {
@@ -84,7 +82,21 @@ namespace unitree_legged
         }
         cmd.reserve = msg->reserve;
         cmd.crc = msg->crc;
-        return cmd;
+    }
+    void Converter::msgToCmd(const unitree_a1_legged_msgs::msg::QuadrupedCmd::SharedPtr msg, LowCmd &cmd)
+    {
+        cmd.motorCmd[FR_0] = Converter::msgToCmd(msg->front_right.hip);
+        cmd.motorCmd[FR_1] = Converter::msgToCmd(msg->front_right.thigh);
+        cmd.motorCmd[FR_2] = Converter::msgToCmd(msg->front_right.calf);
+        cmd.motorCmd[FL_0] = Converter::msgToCmd(msg->front_left.hip);
+        cmd.motorCmd[FL_1] = Converter::msgToCmd(msg->front_left.thigh);
+        cmd.motorCmd[FL_2] = Converter::msgToCmd(msg->front_left.calf);
+        cmd.motorCmd[RR_0] = Converter::msgToCmd(msg->rear_right.hip);
+        cmd.motorCmd[RR_1] = Converter::msgToCmd(msg->rear_right.thigh);
+        cmd.motorCmd[RR_2] = Converter::msgToCmd(msg->rear_right.calf);
+        cmd.motorCmd[RL_0] = Converter::msgToCmd(msg->rear_left.hip);
+        cmd.motorCmd[RL_1] = Converter::msgToCmd(msg->rear_left.thigh);
+        cmd.motorCmd[RL_2] = Converter::msgToCmd(msg->rear_left.calf);
     }
     MotorCmd Converter::msgToCmd(const unitree_a1_legged_msgs::msg::MotorCmd &msg)
     {
@@ -99,6 +111,49 @@ namespace unitree_legged
         cmd.reserve[1] = msg.reserve[1];
         cmd.reserve[2] = msg.reserve[2];
         return cmd;
+    }
+    const std::unordered_map<std::string, int> Converter::jointIndexMap = {
+        {"FR_hip_joint", FR_0},
+        {"FR_thigh_joint", FR_1},
+        {"FR_calf_joint", FR_2},
+        {"FL_hip_joint", FL_0},
+        {"FL_thigh_joint", FL_1},
+        {"FL_calf_joint", FL_2},
+        {"RR_hip_joint", RR_0},
+        {"RR_thigh_joint", RR_1},
+        {"RR_calf_joint", RR_2},
+        {"RL_hip_joint", RL_0},
+        {"RL_thigh_joint", RL_1},
+        {"RL_calf_joint", RL_2}};
+
+    std::vector<std::string> Converter::getJointNames()
+    {
+        std::vector<std::string> names;
+        for (const auto &pair : Converter::jointIndexMap)
+        {
+            names.push_back(pair.first);
+        }
+        return names;
+    }
+    size_t Converter::getJointCount()
+    {
+        return Converter::jointIndexMap.size();
+    }
+    template <size_t N>
+    static sensor_msgs::msg::JointState getJointStateMsg(const MotorState (&state)[N])
+    {
+        sensor_msgs::msg::JointState msg;
+        msg.name = Converter::getJointNames();
+        msg.position.resize(Converter::getJointCount());
+        msg.velocity.resize(Converter::getJointCount());
+        msg.effort.resize(Converter::getJointCount());
+        for (const auto &[key, value] : Converter::jointIndexMap)
+        {
+            msg.position[value] = state[value].q;
+            msg.velocity[value] = state[value].dq;
+            msg.effort[value] = state[value].tauEst;
+        }
+        return msg;
     }
 
 } // namespace unitree_legged

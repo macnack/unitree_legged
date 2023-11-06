@@ -22,10 +22,9 @@ namespace unitree_legged
     {
         return low_state_;
     }
-    void UnitreeLegged::sendLowCmd(const LowCmd &cmd)
+    void UnitreeLegged::sendLowCmd(LowCmd &cmd)
     {
-        low_cmd_ = cmd;
-        low_udp_.SetSend(low_cmd_);
+        low_udp_.SetSend(cmd);
         low_udp_.Send();
     }
     void UnitreeLegged::recvLowState()
