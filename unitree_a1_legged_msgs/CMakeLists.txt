@@ -16,11 +16,12 @@ find_package(geometry_msgs REQUIRED)
 set(msg_files
     "msg/HighCmd.msg"
     "msg/HighState.msg"
+    "msg/LegCmd.msg"
     "msg/LowCmd.msg"
     "msg/LowState.msg"
     "msg/MotorCmd.msg"
     "msg/MotorState.msg"
-    "msg/Sphere.msg"
+    "msg/QuadrupedCmd.msg"
     "msg/UnitreeHeader.msg"
 )
 
