@@ -1,4 +1,4 @@
-std_msgs/msg/Header header
+std_msgs/Header header
 UnitreeHeader a1                   
 sensor_msgs/Imu imu
 MotorState[20] motor_state
