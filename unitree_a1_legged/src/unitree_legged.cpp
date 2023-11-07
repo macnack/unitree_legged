@@ -1,8 +1,22 @@
+// Copyright 2023 Mobile Robots Laboratory at Poznan University of Technology
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "unitree_a1_legged/unitree_legged.hpp"
 
 using namespace UNITREE_LEGGED_SDK;
 
-namespace unitree_legged
+namespace unitree_a1_legged
 {
 
     UnitreeLegged::UnitreeLegged()
@@ -22,6 +36,14 @@ namespace unitree_legged
     {
         return low_state_;
     }
+    void UnitreeLegged::setMotorMode(uint8_t mode)
+    {
+        for (size_t i = 0; i < sizeof(low_cmd_.motorCmd) / sizeof(low_cmd_.motorCmd[0]); i++)
+        {
+            low_cmd_.motorCmd[i].mode = mode;
+        }
+        this->sendLowCmd(low_cmd_);
+    }
     void UnitreeLegged::sendLowCmd(LowCmd &cmd)
     {
         low_udp_.SetSend(cmd);
@@ -33,4 +55,4 @@ namespace unitree_legged
         low_udp_.GetRecv(low_state_);
     }
 
-} // namespace unitree_legged
+} // namespace unitree_a1_legged

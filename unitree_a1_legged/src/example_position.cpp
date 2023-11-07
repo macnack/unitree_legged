@@ -16,7 +16,7 @@ double jointLinearInterpolation(double initPos, double targetPos, double rate)
 class ExamplePosition : public rclcpp::Node
 {
 public:
-    ExamplePosition() : Node("example_position")
+    ExamplePosition() : Node("example_position_low")
     {
         state_ = this->create_subscription<unitree_a1_legged_msgs::msg::LowState>("unitree_lowlevel/state", 1, std::bind(&ExamplePosition::stateCallback, this, std::placeholders::_1));
         cmd_ = this->create_publisher<unitree_a1_legged_msgs::msg::LowCmd>("unitree_lowlevel/command", 1);
@@ -38,11 +38,11 @@ private:
     {
         motiontime++;
         unitree_a1_legged_msgs::msg::LowCmd cmd;
-
-        cmd.motor_cmd[FR_0].tau = -0.65f;
-        cmd.motor_cmd[FL_0].tau = +0.65f;
-        cmd.motor_cmd[RR_0].tau = -0.65f;
-        cmd.motor_cmd[RL_0].tau = +0.65f;
+        cmd.mode = 0x0A; // motor switch to servo (PMSM) mode
+        cmd.motor_cmd.front_right.hip.tau = -0.65f;
+        cmd.motor_cmd.front_left.hip.tau = +0.65f;
+        cmd.motor_cmd.rear_right.hip.tau = -0.65f;
+        cmd.motor_cmd.rear_left.hip.tau = +0.65f;
 
         if (motiontime >= 0)
         {
@@ -50,9 +50,9 @@ private:
             // if( motiontime >= 100 && motiontime < 500){
             if (motiontime >= 0 && motiontime < 10)
             {
-                qInit[0] = msg->motor_state[FR_0].q;
-                qInit[1] = msg->motor_state[FR_1].q;
-                qInit[2] = msg->motor_state[FR_2].q;
+                qInit[0] = msg->motor_state.front_right.hip.q;
+                qInit[1] = msg->motor_state.front_right.thigh.q;
+                qInit[2] = msg->motor_state.front_right.calf.q;
             }
             // second, move to the origin point of a sine movement with Kp Kd
             // if( motiontime >= 500 && motiontime < 1500){
@@ -78,27 +78,27 @@ private:
                 sin_count++;
                 qDes[0] = sin_mid_q[0];
                 qDes[1] = sin_mid_q[1];
-                qDes[2] = sin_mid_q[2] -0.6 * sin(1.8 * M_PI * sin_count / 1000.0);
+                qDes[2] = sin_mid_q[2] - 0.6 * sin(1.8 * M_PI * sin_count / 1000.0);
                 // qDes[2] = sin_mid_q[2];
             }
         }
-        cmd.motor_cmd[FR_0].q = qDes[0];
-        cmd.motor_cmd[FR_0].dq = 0;
-        cmd.motor_cmd[FR_0].kp = Kp[0];
-        cmd.motor_cmd[FR_0].kd = Kd[0];
-        cmd.motor_cmd[FR_0].tau = -0.65f;
+        cmd.motor_cmd.front_left.hip.q = qDes[0];
+        cmd.motor_cmd.front_left.hip.dq = 0;
+        cmd.motor_cmd.front_left.hip.kp = Kp[0];
+        cmd.motor_cmd.front_left.hip.kd = Kd[0];
+        cmd.motor_cmd.front_left.hip.tau = -0.65f;
 
-        cmd.motor_cmd[FR_1].q = qDes[1];
-        cmd.motor_cmd[FR_1].dq = 0;
-        cmd.motor_cmd[FR_1].kp = Kp[1];
-        cmd.motor_cmd[FR_1].kd = Kd[1];
-        cmd.motor_cmd[FR_1].tau = 0.0f;
+        cmd.motor_cmd.front_right.thigh.q = qDes[1];
+        cmd.motor_cmd.front_right.thigh.dq = 0;
+        cmd.motor_cmd.front_right.thigh.kp = Kp[1];
+        cmd.motor_cmd.front_right.thigh.kd = Kd[1];
+        cmd.motor_cmd.front_right.thigh.tau = 0.0f;
 
-        cmd.motor_cmd[FR_2].q = qDes[2];
-        cmd.motor_cmd[FR_2].dq = 0;
-        cmd.motor_cmd[FR_2].kp = Kp[2];
-        cmd.motor_cmd[FR_2].kd = Kd[2];
-        cmd.motor_cmd[FR_2].tau = 0.0f;
+        cmd.motor_cmd.front_right.calf.q = qDes[2];
+        cmd.motor_cmd.front_right.calf.dq = 0;
+        cmd.motor_cmd.front_right.calf.kp = Kp[2];
+        cmd.motor_cmd.front_right.calf.kd = Kd[2];
+        cmd.motor_cmd.front_right.calf.tau = 0.0f;
         cmd_->publish(cmd);
     }
 };

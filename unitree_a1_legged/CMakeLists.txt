@@ -8,6 +8,7 @@ add_compile_options(-Wno-missing-field-initializers)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+# find_package(rclcpp_components REQUIRED)
 find_package(unitree_a1_legged_msgs REQUIRED)
 
 message("-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
@@ -39,13 +40,16 @@ add_library(unitree_legged
     src/unitree_legged_node.cpp
 )
 target_link_libraries(unitree_legged ${EXTRA_LIBS})
+# ament_target_dependencies(unitree_legged ${dependencies} rclcpp_components)
 ament_target_dependencies(unitree_legged ${dependencies})
+
+# rclcpp_components_register_nodes(
+#   unitree_legged
+#   PLUGIN "unitree_a1_legged::UnitreeLeggedNode"
+#   EXECUTABLE ${PROJECT_NAME}_node_exe)
 
 add_executable(example_position src/example_position.cpp)
 ament_target_dependencies(example_position rclcpp ${dependencies})
-
-add_executable(example_position2 src/example_position_second.cpp)
-ament_target_dependencies(example_position2 rclcpp ${dependencies})
 
 add_executable(udp src/udp.cpp)
 target_link_libraries(udp unitree_legged)
@@ -54,7 +58,6 @@ install(TARGETS
   unitree_legged
   udp
   example_position
-  example_position2
   DESTINATION lib/${PROJECT_NAME}
   )
 install(DIRECTORY

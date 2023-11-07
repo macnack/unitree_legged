@@ -1,8 +1,22 @@
+// Copyright 2023 Mobile Robots Laboratory at Poznan University of Technology
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "unitree_a1_legged/unitree_legged_converter.hpp"
 
 using namespace UNITREE_LEGGED_SDK;
 
-namespace unitree_legged
+namespace unitree_a1_legged
 {
     sensor_msgs::msg::Imu Converter::stateToMsg(const IMU &state)
     {
@@ -29,15 +43,9 @@ namespace unitree_legged
         msg.a1.sn = state.SN;
         msg.a1.band_width = state.bandWidth;
         msg.imu = Converter::stateToMsg(state.imu);
-        for (int i = 0; i < 20; i++)
-        {
-            msg.motor_state[i] = Converter::stateToMsg(state.motorState[i]);
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            msg.foot_force[i] = state.footForce[i];
-            msg.foot_force_est[i] = state.footForceEst[i];
-        }
+        msg.motor_state = Converter::stateToMsg(state.motorState);
+        msg.foot_force = Converter::stateToMsg(state.footForce);
+        msg.foot_force_est = Converter::stateToMsg(state.footForceEst);
         msg.tick = state.tick;
         for (int i = 0; i < 40; i++)
         {
@@ -45,6 +53,23 @@ namespace unitree_legged
         }
         msg.reserve = state.reserve;
         msg.crc = state.crc;
+        return msg;
+    }
+    unitree_a1_legged_msgs::msg::QuadrupedState Converter::stateToMsg(const MotorState (&state)[20])
+    {
+        unitree_a1_legged_msgs::msg::QuadrupedState msg;
+        msg.front_left.hip = Converter::stateToMsg(state[FR_0]);
+        msg.front_left.thigh = Converter::stateToMsg(state[FR_1]);
+        msg.front_left.calf = Converter::stateToMsg(state[FR_2]);
+        msg.front_left.hip = Converter::stateToMsg(state[FL_0]);
+        msg.front_left.thigh = Converter::stateToMsg(state[FL_1]);
+        msg.front_left.calf = Converter::stateToMsg(state[FL_2]);
+        msg.rear_right.hip = Converter::stateToMsg(state[RR_0]);
+        msg.rear_right.thigh = Converter::stateToMsg(state[RR_1]);
+        msg.rear_right.calf = Converter::stateToMsg(state[RR_2]);
+        msg.rear_left.hip = Converter::stateToMsg(state[RL_0]);
+        msg.rear_left.thigh = Converter::stateToMsg(state[RL_1]);
+        msg.rear_left.calf = Converter::stateToMsg(state[RL_2]);
         return msg;
     }
     unitree_a1_legged_msgs::msg::MotorState Converter::stateToMsg(const MotorState &state)
@@ -63,40 +88,50 @@ namespace unitree_legged
         msg.reserve[1] = state.reserve[1];
         return msg;
     }
+    unitree_a1_legged_msgs::msg::FootForceState Converter::stateToMsg(const int16_t state[4])
+    {
+        unitree_a1_legged_msgs::msg::FootForceState msg;
+        msg.front_left = state[FR_];
+        msg.front_right = state[FL_];
+        msg.rear_right = state[RR_];
+        msg.rear_left = state[RL_];
+        return msg;
+    }
     void Converter::msgToCmd(const unitree_a1_legged_msgs::msg::LowCmd::SharedPtr msg, LowCmd &cmd)
     {
-        cmd.levelFlag = msg->a1.level_flag;
-        cmd.commVersion = msg->a1.comm_version;
-        cmd.robotID = msg->a1.robot_id;
-        cmd.SN = msg->a1.sn;
-        cmd.bandWidth = msg->a1.band_width;
+        // cmd.levelFlag = msg->a1.level_flag;
+        // cmd.commVersion = msg->a1.comm_version;
+        // cmd.robotID = msg->a1.robot_id;
+        // cmd.SN = msg->a1.sn;
+        // cmd.bandWidth = msg->a1.band_width;
         for (const auto &[key, value] : Converter::jointIndexMap)
         {
-            cmd.motorCmd[value] = Converter::msgToCmd(msg->motor_cmd[value]);
+            cmd.motorCmd[value].mode = msg->mode;
         }
-        for (int i = 0; i < 4; i++)
-        {
-            cmd.led[i].r = msg->led[i].r;
-            cmd.led[i].g = msg->led[i].g;
-            cmd.led[i].b = msg->led[i].b;
-        }
-        cmd.reserve = msg->reserve;
-        cmd.crc = msg->crc;
+        Converter::msgToCmd(msg->motor_cmd, cmd);
+        // for (int i = 0; i < 4; i++)
+        // {
+        //     cmd.led[i].r = msg->led[i].r;
+        //     cmd.led[i].g = msg->led[i].g;
+        //     cmd.led[i].b = msg->led[i].b;
+        // }
+        // cmd.reserve = msg->reserve;
+        // cmd.crc = msg->crc;
     }
-    void Converter::msgToCmd(const unitree_a1_legged_msgs::msg::QuadrupedCmd::SharedPtr msg, LowCmd &cmd)
+    void Converter::msgToCmd(const unitree_a1_legged_msgs::msg::QuadrupedCmd msg, LowCmd &cmd)
     {
-        cmd.motorCmd[FR_0] = Converter::msgToCmd(msg->front_right.hip);
-        cmd.motorCmd[FR_1] = Converter::msgToCmd(msg->front_right.thigh);
-        cmd.motorCmd[FR_2] = Converter::msgToCmd(msg->front_right.calf);
-        cmd.motorCmd[FL_0] = Converter::msgToCmd(msg->front_left.hip);
-        cmd.motorCmd[FL_1] = Converter::msgToCmd(msg->front_left.thigh);
-        cmd.motorCmd[FL_2] = Converter::msgToCmd(msg->front_left.calf);
-        cmd.motorCmd[RR_0] = Converter::msgToCmd(msg->rear_right.hip);
-        cmd.motorCmd[RR_1] = Converter::msgToCmd(msg->rear_right.thigh);
-        cmd.motorCmd[RR_2] = Converter::msgToCmd(msg->rear_right.calf);
-        cmd.motorCmd[RL_0] = Converter::msgToCmd(msg->rear_left.hip);
-        cmd.motorCmd[RL_1] = Converter::msgToCmd(msg->rear_left.thigh);
-        cmd.motorCmd[RL_2] = Converter::msgToCmd(msg->rear_left.calf);
+        cmd.motorCmd[FR_0] = Converter::msgToCmd(msg.front_right.hip);
+        cmd.motorCmd[FR_1] = Converter::msgToCmd(msg.front_right.thigh);
+        cmd.motorCmd[FR_2] = Converter::msgToCmd(msg.front_right.calf);
+        cmd.motorCmd[FL_0] = Converter::msgToCmd(msg.front_left.hip);
+        cmd.motorCmd[FL_1] = Converter::msgToCmd(msg.front_left.thigh);
+        cmd.motorCmd[FL_2] = Converter::msgToCmd(msg.front_left.calf);
+        cmd.motorCmd[RR_0] = Converter::msgToCmd(msg.rear_right.hip);
+        cmd.motorCmd[RR_1] = Converter::msgToCmd(msg.rear_right.thigh);
+        cmd.motorCmd[RR_2] = Converter::msgToCmd(msg.rear_right.calf);
+        cmd.motorCmd[RL_0] = Converter::msgToCmd(msg.rear_left.hip);
+        cmd.motorCmd[RL_1] = Converter::msgToCmd(msg.rear_left.thigh);
+        cmd.motorCmd[RL_2] = Converter::msgToCmd(msg.rear_left.calf);
     }
     MotorCmd Converter::msgToCmd(const unitree_a1_legged_msgs::msg::MotorCmd &msg)
     {
@@ -139,8 +174,7 @@ namespace unitree_legged
     {
         return Converter::jointIndexMap.size();
     }
-    template <size_t N>
-    static sensor_msgs::msg::JointState getJointStateMsg(const MotorState (&state)[N])
+    sensor_msgs::msg::JointState Converter::getJointStateMsg(const LowState &state)
     {
         sensor_msgs::msg::JointState msg;
         msg.name = Converter::getJointNames();
@@ -149,11 +183,11 @@ namespace unitree_legged
         msg.effort.resize(Converter::getJointCount());
         for (const auto &[key, value] : Converter::jointIndexMap)
         {
-            msg.position[value] = state[value].q;
-            msg.velocity[value] = state[value].dq;
-            msg.effort[value] = state[value].tauEst;
+            msg.position[value] = state.motorState[value].q;
+            msg.velocity[value] = state.motorState[value].dq;
+            msg.effort[value] = state.motorState[value].tauEst;
         }
         return msg;
     }
 
-} // namespace unitree_legged
+} // namespace unitree_a1_legged
