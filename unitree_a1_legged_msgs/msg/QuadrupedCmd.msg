@@ -1,4 +1,3 @@
-std_msgs/Header header
 LegCmd front_right
 LegCmd front_left
 LegCmd rear_right

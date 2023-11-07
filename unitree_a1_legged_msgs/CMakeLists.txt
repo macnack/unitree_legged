@@ -14,14 +14,17 @@ find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 set(msg_files
+    "msg/FootForceState.msg"
     "msg/HighCmd.msg"
     "msg/HighState.msg"
     "msg/LegCmd.msg"
+    "msg/LegState.msg"
     "msg/LowCmd.msg"
     "msg/LowState.msg"
     "msg/MotorCmd.msg"
     "msg/MotorState.msg"
     "msg/QuadrupedCmd.msg"
+    "msg/QuadrupedState.msg"
     "msg/UnitreeHeader.msg"
 )
 
