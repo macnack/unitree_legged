@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <unordered_map>
+#include <vector>
 
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
