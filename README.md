@@ -1,5 +1,11 @@
 # unitree_legged
+🚨 **Repository has been moved to a new location!**
 
+This repository has been transported to a new location. Please update your Git remotes to the new repository URL:
+
+New Repository: [unitree_legged](https://github.com/PPI-PUT/unitree_legged)
+
+You can update your remote URL using the following Git command:
 
 ## Dependecies
 ```
